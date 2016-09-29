@@ -18,10 +18,10 @@ defmodule Stereo.CLI do
     input_frame = frame_name(i)
     output_frame = frame_name(i * 2 - 1)
     input_file = "#{input_dir}/#{base_name}stereoCameraLeft_#{input_frame}.tif"
-    output_file = "#{output_dir}/#{base_name}stereoCameraLeft_#{output_frame}.tif"
+    output_file = "#{output_dir}/#{base_name}_#{output_frame}.tif"
     if File.exists?(input_file) do
       IO.puts "#{Path.basename(input_file)} -> #{Path.basename(output_file)}"
-      # File.cp!(input_file, output_file)
+      File.cp!(input_file, output_file)
       copy_left_camera(input_dir, output_dir, base_name, i + 1)
     end
   end
@@ -30,16 +30,12 @@ defmodule Stereo.CLI do
     input_frame = frame_name(i)
     output_frame = frame_name(i * 2)
     input_file = "#{input_dir}/#{base_name}stereoCameraRight_#{input_frame}.tif"
-    output_file = "#{output_dir}/#{base_name}stereoCameraRight_#{output_frame}.tif"
+    output_file = "#{output_dir}/#{base_name}_#{output_frame}.tif"
     if File.exists?(input_file) do
       IO.puts "#{Path.basename(input_file)} -> #{Path.basename(output_file)}"
-      # File.cp!(input_file, output_file)
+      File.cp!(input_file, output_file)
       copy_right_camera(input_dir, output_dir, base_name, i + 1)
     end
-  end
-
-  defp copy_frame(input_path) do
-
   end
 
   defp frame_name(n) do
