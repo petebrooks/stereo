@@ -15,13 +15,8 @@ defmodule Stereo.Name do
       |> Path.join("output")
   end
 
-  def ffmpeg(glob) do
-    sample = glob
-      |> Path.expand
-      |> Path.wildcard
-    output_dir(glob)
-      |> Path.expand
-      |> Path.join("#{Parser.basename(sample)}_%04d#{Path.extname(sample)}")
+  def ffmpeg(path) do
+    String.replace(path, ~r/\d+(\..)/, "%04d\\1")
   end
 
   defp frame_name(path) do

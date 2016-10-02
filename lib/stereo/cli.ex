@@ -17,17 +17,10 @@ defmodule Stereo.CLI do
     output_dir = Name.output_dir(input_glob)
     find_or_create_dir!(command, output_dir)
     case copy_camera(command, output_dir, input_glob) do
-      { :ok, output_dir } -> IO.puts output_dir
-      { :error, error } -> IO.puts error
+      { :error, reason } -> IO.puts reason
+      [path | _] -> IO.puts Name.ffmpeg(path)
     end
-    IO.puts Name.ffmpeg(input_glob)
   end
-
-  defp find_or_create_dir!(:run, dir) do
-    File.exists?(dir) || File.mkdir!(dir)
-  end
-
-  defp find_or_create_dir!(:dry_run, _), do: :ok
 
   defp unglob(input_glob) do
     input_glob
@@ -35,7 +28,7 @@ defmodule Stereo.CLI do
       |> Path.wildcard
   end
 
-  defp copy_camera(_, output_dir, []), do: { :ok, output_dir }
+  defp copy_camera(_, _, []), do: []
 
   defp copy_camera(command, output_dir, input_glob) when is_bitstring(input_glob) do
     copy_camera(command, output_dir, unglob(input_glob))
@@ -44,15 +37,16 @@ defmodule Stereo.CLI do
   defp copy_camera(command, output_dir, [input | tail]) do
     output = Name.output_path(output_dir, input)
     copy!(command, input, output)
-    copy_camera(command, output_dir, tail)
+    [output | copy_camera(command, output_dir, tail)]
   end
 
-  defp copy!(:dry_run, source, destination) do
-    IO.puts "#{Path.basename(source)} -> #{Path.basename(destination)}"
+  defp find_or_create_dir!(:dry_run, _), do: :ok
+  defp find_or_create_dir!(:run, dir) do
+    File.exists?(dir) || File.mkdir!(dir)
   end
 
+  defp copy!(:dry_run, _, _), do: :ok
   defp copy!(:run, source, destination) do
-    IO.puts "#{Path.basename(source)} -> #{Path.basename(destination)}"
     File.cp!(source, destination)
   end
 
