@@ -2,6 +2,7 @@
 
 defmodule Stereo.CLI do
   alias Stereo.Name
+  alias Stereo.Movie
 
   def main(argv) do
     argv
@@ -18,7 +19,7 @@ defmodule Stereo.CLI do
     find_or_create_dir!(command, output_dir)
     case copy_camera(command, output_dir, input_glob) do
       { :error, reason } -> IO.puts reason
-      [path | _] -> IO.puts Name.ffmpeg(path)
+      [path | _] -> Movie.create(command, path)
     end
   end
 
@@ -47,7 +48,7 @@ defmodule Stereo.CLI do
 
   defp copy!(:dry_run, _, _), do: :ok
   defp copy!(:run, source, destination) do
-    File.cp!(source, destination)
+    File.cp!(source, destination, fn _, _ -> false end)
   end
 
   defp parse_args(argv) do
