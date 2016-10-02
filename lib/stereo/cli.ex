@@ -15,9 +15,7 @@ defmodule Stereo.CLI do
 
   defp process({:run, input_glob}) do
     output_dir = output_dirname(input_glob)
-    unless File.exists?(output_dir) do
-      File.mkdir!(output_dir)
-    end
+    File.exists?(output_dir) || File.mkdir!(output_dir)
     copy_camera(:run, output_dir, unglob(input_glob))
   end
 
@@ -42,17 +40,19 @@ defmodule Stereo.CLI do
     # noop
   end
 
-  defp copy_camera(:run, output_dir, [input | tail]) do
+  defp copy_camera(command, output_dir, [input | tail]) do
     output = output_path(output_dir, input)
-    IO.puts "#{Path.basename(input)} -> #{Path.basename(output)}"
-    File.cp(input, output)
-    copy_camera(:run, output_dir, tail)
+    copy!(command, input, output)
+    copy_camera(command, output_dir, tail)
   end
 
-  defp copy_camera(:dry_run, output_dir, [input | tail]) do
-    output = output_path(output_dir, input)
-    IO.puts "#{Path.basename(input)} -> #{Path.basename(output)}"
-    copy_camera(:dry_run, output_dir, tail)
+  defp copy!(:dry_run, source, destination) do
+    IO.puts "#{Path.basename(source)} -> #{Path.basename(destination)}"
+  end
+
+  defp copy!(:run, source, destination) do
+    IO.puts "#{Path.basename(source)} -> #{Path.basename(destination)}"
+    File.cp!(source, destination)
   end
 
   defp output_path(output_dir, filepath) do
