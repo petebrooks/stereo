@@ -2,6 +2,7 @@
 
 defmodule Stereo.CLI do
   alias Stereo.Parser
+  alias Stereo.Name
 
   def main(argv) do
     argv
@@ -14,13 +15,13 @@ defmodule Stereo.CLI do
   end
 
   defp process({:run, input_glob}) do
-    output_dir = output_dirname(input_glob)
+    output_dir = Name.output_dir(input_glob)
     File.exists?(output_dir) || File.mkdir!(output_dir)
     copy_camera(:run, output_dir, unglob(input_glob))
   end
 
   defp process({:dry_run, input_glob}) do
-    output_dir = output_dirname(input_glob)
+    output_dir = Name.output_dir(input_glob)
     copy_camera(:dry_run, output_dir, unglob(input_glob))
   end
 
@@ -30,18 +31,10 @@ defmodule Stereo.CLI do
       |> Path.wildcard
   end
 
-  def output_dirname(input_glob) do
-    input_glob
-      |> Path.dirname
-      |> Path.join("output")
-  end
-
-  defp copy_camera(_, _, []) do
-    # noop
-  end
+  defp copy_camera(_, _, []), do: nil
 
   defp copy_camera(command, output_dir, [input | tail]) do
-    output = output_path(output_dir, input)
+    output = Name.output_path(output_dir, input)
     copy!(command, input, output)
     copy_camera(command, output_dir, tail)
   end
@@ -53,28 +46,6 @@ defmodule Stereo.CLI do
   defp copy!(:run, source, destination) do
     IO.puts "#{Path.basename(source)} -> #{Path.basename(destination)}"
     File.cp!(source, destination)
-  end
-
-  defp output_path(output_dir, filepath) do
-    output_frame = frame_name(filepath)
-    basename = Parser.basename(filepath)
-    extension = Path.extname(filepath)
-    Path.join(output_dir, "#{basename}_#{output_frame}#{extension}")
-  end
-
-  defp frame_name(filepath) do
-    output_num(filepath)
-      |> Integer.to_string
-      |> String.pad_leading(4, "0")
-  end
-
-  defp output_num(filepath) do
-    eye = Parser.eye(filepath)
-    input_num = Parser.frame_number(filepath)
-    case eye do
-       "Left" -> input_num * 2 - 1
-       "Right" -> input_num * 2
-    end
   end
 
   defp parse_args(argv) do
