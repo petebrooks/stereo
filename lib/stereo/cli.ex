@@ -1,6 +1,8 @@
 # Covert with ffmpeg -i particle1_%04d.tif output.mov
 
 defmodule Stereo.CLI do
+  alias Stereo.Parser
+
   def main(argv) do
     argv
       |> parse_args
@@ -54,23 +56,25 @@ defmodule Stereo.CLI do
   end
 
   defp output_path(output_dir, filepath) do
-    [_, eye] = Regex.run(~r/stereoCamera(Left|Right)/, filepath)
-    input_number = Regex.run(~r/_(\d+)\./, Path.basename(filepath))
-      |> fn [_, n] -> String.to_integer(n) end.()
-    output_number = case eye do
-       "Left" -> input_number * 2 - 1
-       "Right" -> input_number * 2
-    end
-    output_frame = frame_name(output_number)
-    [_, basename] = Regex.run(~r/(.+)\Wstereo/, Path.basename(filepath))
+    output_frame = frame_name(filepath)
+    basename = Parser.basename(filepath)
     extension = Path.extname(filepath)
     Path.join(output_dir, "#{basename}_#{output_frame}#{extension}")
   end
 
-  defp frame_name(n) do
-    n
-    |> Integer.to_string
-    |> String.pad_leading(4, "0")
+  defp frame_name(filepath) do
+    output_num(filepath)
+      |> Integer.to_string
+      |> String.pad_leading(4, "0")
+  end
+
+  defp output_num(filepath) do
+    eye = Parser.eye(filepath)
+    input_num = Parser.frame_number(filepath)
+    case eye do
+       "Left" -> input_num * 2 - 1
+       "Right" -> input_num * 2
+    end
   end
 
   defp parse_args(argv) do
@@ -81,8 +85,8 @@ defmodule Stereo.CLI do
     case args do
       { [help: true], _, _ }                -> :help
       { _, [""], _ }                        -> :help
-      { [dry_run: true], [input_glob], _ } -> { :dry_run, input_glob }
-      { _, [input_glob], _ }               -> { :run, input_glob }
+      { [dry_run: true], [input_glob], _ }  -> { :dry_run, input_glob }
+      { _, [input_glob], _ }                -> { :run,     input_glob }
     end
   end
 end
