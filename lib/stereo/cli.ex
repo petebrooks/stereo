@@ -1,7 +1,6 @@
 # Covert with ffmpeg -i particle1_%04d.tif output.mov
 
 defmodule Stereo.CLI do
-  alias Stereo.Parser
   alias Stereo.Name
 
   def main(argv) do
@@ -14,16 +13,20 @@ defmodule Stereo.CLI do
     IO.puts "help"
   end
 
-  defp process({:run, input_glob}) do
+  defp process({command, input_glob}) do
     output_dir = Name.output_dir(input_glob)
-    File.exists?(output_dir) || File.mkdir!(output_dir)
-    copy_camera(:run, output_dir, unglob(input_glob))
+    find_or_create_dir!(command, output_dir)
+    case copy_camera(command, output_dir, unglob(input_glob)) do
+      { :ok, output_dir } -> IO.puts output_dir
+      { :error, error } -> IO.puts error
+    end
   end
 
-  defp process({:dry_run, input_glob}) do
-    output_dir = Name.output_dir(input_glob)
-    copy_camera(:dry_run, output_dir, unglob(input_glob))
+  defp find_or_create_dir!(:run, dir) do
+    File.exists?(dir) || File.mkdir!(dir)
   end
+
+  defp find_or_create_dir!(:dry_run, _), do: :ok
 
   defp unglob(input_glob) do
     input_glob
@@ -31,7 +34,11 @@ defmodule Stereo.CLI do
       |> Path.wildcard
   end
 
-  defp copy_camera(_, _, []), do: nil
+  defp copy_camera(_, output_dir, []), do: { :ok, output_dir }
+
+  defp copy_camera(command, output_dir, input_glob) do
+    copy_camera(command, output_dir, unglob(input_glob))
+  end
 
   defp copy_camera(command, output_dir, [input | tail]) do
     output = Name.output_path(output_dir, input)
