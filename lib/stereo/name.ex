@@ -10,8 +10,18 @@ defmodule Stereo.Name do
 
   def output_dir(glob) do
     glob
+      |> Path.expand
       |> Path.dirname
       |> Path.join("output")
+  end
+
+  def ffmpeg(glob) do
+    sample = glob
+      |> Path.expand
+      |> Path.wildcard
+    output_dir(glob)
+      |> Path.expand
+      |> Path.join("#{Parser.basename(sample)}_%04d#{Path.extname(sample)}")
   end
 
   defp frame_name(path) do

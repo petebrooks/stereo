@@ -16,10 +16,11 @@ defmodule Stereo.CLI do
   defp process({command, input_glob}) do
     output_dir = Name.output_dir(input_glob)
     find_or_create_dir!(command, output_dir)
-    case copy_camera(command, output_dir, unglob(input_glob)) do
+    case copy_camera(command, output_dir, input_glob) do
       { :ok, output_dir } -> IO.puts output_dir
       { :error, error } -> IO.puts error
     end
+    IO.puts Name.ffmpeg(input_glob)
   end
 
   defp find_or_create_dir!(:run, dir) do
@@ -36,7 +37,7 @@ defmodule Stereo.CLI do
 
   defp copy_camera(_, output_dir, []), do: { :ok, output_dir }
 
-  defp copy_camera(command, output_dir, input_glob) do
+  defp copy_camera(command, output_dir, input_glob) when is_bitstring(input_glob) do
     copy_camera(command, output_dir, unglob(input_glob))
   end
 
