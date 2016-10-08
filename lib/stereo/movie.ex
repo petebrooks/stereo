@@ -14,7 +14,8 @@ defmodule Stereo.Movie do
   end
 
   defp run(:run, pattern, output) do
-    IO.puts "Creating #{output}"
+    IO.puts "Creating #{Path.basename(output)}"
+    IO.puts "in #{Parser.pretty_dirname(output)}"
     System.cmd("ffmpeg", ["-i", pattern, output], stderr_to_stdout: true)
   end
 
