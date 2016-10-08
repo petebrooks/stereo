@@ -11,7 +11,19 @@ defmodule Stereo.Parser do
   end
 
   def basename(path) do
-    Regex.run(~r/(.+)\Wstereo/, Path.basename(path))
-      |> Enum.at(1)
+    from_file = Regex.run(~r/(.+)\Wstereo/, Path.basename(path))
+    if from_file do
+      Enum.at(from_file, 1)
+    else
+      path
+        |> Path.split
+        |> Enum.at(-2)
+    end
+  end
+
+  def pretty_dirname(path) do
+    path
+      |> Path.dirname
+      |> String.replace(Path.expand("~"), "~")
   end
 end
