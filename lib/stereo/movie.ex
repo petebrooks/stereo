@@ -8,21 +8,31 @@ defmodule Stereo.Movie do
     run(command, pattern, output)
   end
 
-  defp run(:dry_run, pattern, output) do
-    IO.puts pattern
-    IO.puts output
+  defp run(:dry_run, _, output) do
+    log_output_path(output)
+    IO.puts "DRY RUN"
   end
 
   defp run(:run, pattern, output) do
-    IO.puts "Creating #{Path.basename(output)}"
-    IO.puts "in #{Parser.pretty_dirname(output)}"
-    System.cmd("ffmpeg", ["-i", pattern, output], stderr_to_stdout: true)
+    log_output_path(output)
+    case System.cmd("ffmpeg", ["-i", pattern, output], stderr_to_stdout: true) do
+      {_, 0} -> :ok
+      error -> {:error, error}
+    end
+  end
+
+  defp log_output_path(path) do
+    IO.puts "Creating #{Path.basename(path)}"
+    IO.puts "in #{Parser.pretty_dirname(path)}"
   end
 
   defp output_path(path) do
     dir = Path.dirname(path)
     basename = "output"
-    {_, existing_files} = File.ls(dir)
+    existing_files = case File.ls(dir) do
+      {:error, _} -> []
+      {:ok, other} -> other
+    end
     existing_indices = existing_files
       |> Enum.filter(&String.contains?(&1, basename))
       |> Enum.map(&Parser.frame_number(&1))

@@ -15,11 +15,13 @@ defmodule Stereo.CLI do
   end
 
   defp process({command, input_glob}) do
-    output_dir = Name.output_dir(input_glob)
+    output_dir = Name.output_dir(Enum.at(input_glob, 0))
     find_or_create_dir!(command, output_dir)
-    case copy_camera(command, output_dir, input_glob) do
+    result = copy_camera(command, output_dir, input_glob)
+    case result do
       { :error, reason } -> IO.puts reason
       [path | _] -> Movie.create(command, path)
+      [] -> IO.puts "No files"
     end
   end
 
@@ -59,8 +61,8 @@ defmodule Stereo.CLI do
     case args do
       { [help: true], _, _ }                -> :help
       { _, [""], _ }                        -> :help
-      { [dry_run: true], [input_glob], _ }  -> { :dry_run, input_glob }
-      { _, [input_glob], _ }                -> { :run,     input_glob }
+      { [dry_run: true], input_glob, _ }  -> { :dry_run, input_glob }
+      { _, input_glob, _ }                -> { :run,     input_glob }
     end
   end
 end
