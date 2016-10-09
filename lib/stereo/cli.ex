@@ -1,6 +1,6 @@
-# Covert with ffmpeg -i particle1_%04d.tif output.mov
 defmodule Stereo.CLI do
   alias Stereo.Runner
+  alias Stereo.Parser
 
   def main(argv) do
     argv
@@ -9,19 +9,21 @@ defmodule Stereo.CLI do
   end
 
   defp process(:help) do
-    IO.puts "help"
+    IO.puts """
+    Usage: stereo [-h | --help] [-d | --dry-run] <input>
+    """
   end
 
   defp process({command, input_glob}) do
     Runner.run(command, input_glob)
-      |> log_result
+      |> print_result
   end
 
-  defp log_result({:error, reason}) do
+  defp print_result({:error, reason}) do
     IO.puts "Error: #{reason}"
   end
 
-  defp log_result(output_path) do
+  defp print_result(output_path) do
     IO.puts """
       Created #{Path.basename(output_path)}
       in #{Parser.pretty_dirname(output_path)}
