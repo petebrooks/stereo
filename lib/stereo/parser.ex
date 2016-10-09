@@ -26,4 +26,10 @@ defmodule Stereo.Parser do
       |> Path.dirname
       |> String.replace(Path.expand("~"), "~")
   end
+
+  def padding_length(path) do
+    Regex.run(~r/(\d+)\./, path)
+      |> Enum.at(1)
+      |> String.length
+  end
 end

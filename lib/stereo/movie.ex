@@ -1,20 +1,21 @@
 defmodule Stereo.Movie do
   alias Stereo.Name
   alias Stereo.Parser
+  alias Stereo.File
 
   def create(command, path) do
-    pattern = Name.ffmpeg(path)
+    pattern = Name.ffmpeg_pattern(path)
     output = output_path(path)
+    log_output_path(output)
     run(command, pattern, output)
   end
 
   defp run(:dry_run, _, output) do
-    log_output_path(output)
     IO.puts "DRY RUN"
+    :ok
   end
 
   defp run(:run, pattern, output) do
-    log_output_path(output)
     case System.cmd("ffmpeg", ["-i", pattern, output], stderr_to_stdout: true) do
       {_, 0} -> :ok
       error -> {:error, error}
@@ -29,10 +30,7 @@ defmodule Stereo.Movie do
   defp output_path(path) do
     dir = Path.dirname(path)
     basename = "output"
-    existing_files = case File.ls(dir) do
-      {:error, _} -> []
-      {:ok, other} -> other
-    end
+    existing_files = File.safe_ls(dir)
     existing_indices = existing_files
       |> Enum.filter(&String.contains?(&1, basename))
       |> Enum.map(&Parser.frame_number(&1))

@@ -15,8 +15,9 @@ defmodule Stereo.Name do
       |> Path.join("output")
   end
 
-  def ffmpeg(path) do
-    String.replace(path, ~r/\d+(\..)/, "%04d\\1")
+  def ffmpeg_pattern(path) do
+    count = Parser.padding_length(path)
+    String.replace(path, ~r/\d+(\..)/, "%0#{count}d\\1")
   end
 
   defp frame_name(path) do
