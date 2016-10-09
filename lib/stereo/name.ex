@@ -21,9 +21,10 @@ defmodule Stereo.Name do
   end
 
   defp frame_name(path) do
+    count = Parser.padding_length(path)
     output_num(path)
       |> Integer.to_string
-      |> String.pad_leading(4, "0")
+      |> String.pad_leading(count, "0")
   end
 
   defp output_num(path) do
