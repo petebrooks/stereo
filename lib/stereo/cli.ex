@@ -13,10 +13,19 @@ defmodule Stereo.CLI do
   end
 
   defp process({command, input_glob}) do
-    case Runner.run(command, input_glob) do
-      { :error, reason } -> IO.puts reason
-      _ -> IO.puts "ok"
-    end
+    Runner.run(command, input_glob)
+      |> log_result
+  end
+
+  defp log_result({:error, reason}) do
+    IO.puts "Error: #{reason}"
+  end
+
+  defp log_result(output_path) do
+    IO.puts """
+      Created #{Path.basename(output_path)}
+      in #{Parser.pretty_dirname(output_path)}
+    """
   end
 
   defp parse_args(argv) do

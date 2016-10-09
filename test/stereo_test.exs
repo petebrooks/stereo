@@ -15,20 +15,19 @@ defmodule StereoTest do
 
   test "dry run with an array of paths" do
     paths = Path.expand(@fixtures)
-    assert Stereo.Runner.run(:dry_run, paths) == :ok
+    assert {:ok, _} = Stereo.Runner.run(:dry_run, paths)
   end
 
   test "dry run with a glob string" do
-    assert Stereo.Runner.run(:dry_run, @fixtures) == :ok
+    assert {:ok, _} = Stereo.Runner.run(:dry_run, @fixtures)
   end
 
   test "run with an array of paths" do
     paths = Path.expand(@fixtures)
-    assert Stereo.Runner.run(:run, paths) == :ok
+    assert {:ok, _} = Stereo.Runner.run(:run, paths)
   end
 
   test "run with a glob string" do
-    assert Stereo.Runner.run(:run, @fixtures) == :ok
+    assert {:ok, _} = Stereo.Runner.run(:run, @fixtures)
   end
-
 end

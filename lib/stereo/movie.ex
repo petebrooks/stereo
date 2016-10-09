@@ -6,25 +6,16 @@ defmodule Stereo.Movie do
   def create(command, path) do
     pattern = Name.ffmpeg_pattern(path)
     output = output_path(path)
-    log_output_path(output)
     run(command, pattern, output)
   end
 
-  defp run(:dry_run, _, output) do
-    IO.puts "DRY RUN"
-    :ok
-  end
+  defp run(:dry_run, _, output), do: {:ok, output}
 
   defp run(:run, pattern, output) do
     case System.cmd("ffmpeg", ["-i", pattern, output], stderr_to_stdout: true) do
-      {_, 0} -> :ok
-      error -> {:error, error}
+      {_, 0} -> {:ok, output}
+      error  -> {:error, error}
     end
-  end
-
-  defp log_output_path(path) do
-    IO.puts "Creating #{Path.basename(path)}"
-    IO.puts "in #{Parser.pretty_dirname(path)}"
   end
 
   defp output_path(path) do
