@@ -1,6 +1,5 @@
 defmodule Stereo.CLI do
-  alias Stereo.Runner
-  alias Stereo.Parser
+  alias Stereo.{Parser, Runner}
 
   def main(argv) do
     argv

@@ -1,7 +1,5 @@
 defmodule Stereo.Movie do
-  alias Stereo.Name
-  alias Stereo.Parser
-  alias Stereo.File
+  alias Stereo.{File, Name, Parser}
 
   def create(options, path) do
     pattern = Name.ffmpeg_pattern(path)
