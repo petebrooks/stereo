@@ -10,6 +10,16 @@ defmodule Stereo.Parser do
       |> String.to_integer
   end
 
+  def frame_numbers(paths) do
+    Enum.map(paths, &frame_number/1)
+  end
+
+  def frame_numbers(paths, filter_name) do
+    paths
+      |> Enum.filter(&String.contains?(&1, filter_name))
+      |> frame_numbers
+  end
+
   def basename(path) do
     from_file = Regex.run(~r/(.+)\Wstereo/, Path.basename(path))
     if from_file do

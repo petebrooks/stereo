@@ -3,6 +3,9 @@ defmodule Stereo.Movie do
   alias Stereo.Parser
   alias Stereo.File
 
+  # TODO: Allow customizing output name
+  @basename "output"
+
   def create(command, path) do
     pattern = Name.ffmpeg_pattern(path)
     output = output_path(path)
@@ -10,7 +13,6 @@ defmodule Stereo.Movie do
   end
 
   defp run(:dry_run, _, output), do: {:ok, output}
-
   defp run(:run, pattern, output) do
     case System.cmd("ffmpeg", ["-i", pattern, output], stderr_to_stdout: true) do
       {_, 0} -> {:ok, output}
@@ -20,13 +22,10 @@ defmodule Stereo.Movie do
 
   defp output_path(path) do
     dir = Path.dirname(path)
-    basename = "output"
-    existing_files = File.safe_ls(dir)
-    existing_indices = existing_files
-      |> Enum.filter(&String.contains?(&1, basename))
-      |> Enum.map(&Parser.frame_number(&1))
-    index = next_index(existing_indices)
-    Path.join(dir, "#{basename}_#{index}.mov")
+    index = File.safe_ls(dir)
+      |> Parser.frame_numbers(@basename)
+      |> next_index
+    Path.join(dir, "#{@basename}_#{index}.mov")
   end
 
   defp next_index([]), do: 1
