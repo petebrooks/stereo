@@ -1,6 +1,6 @@
 defmodule Stereo.Parser do
   def eye(path) do
-    Regex.run(~r/stereoCamera(Left|Right)/, path)
+    Regex.run(~r/stereoCamera\d?(Left|Right)/, path)
       |> Enum.at(1)
   end
 

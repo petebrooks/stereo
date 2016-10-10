@@ -1,14 +1,14 @@
 defmodule Stereo.Name do
   alias Stereo.Parser
 
-  def output_path(dir, path) do
+  def image_output_path(dir, path) do
     output_frame = frame_name(path)
     basename = Parser.basename(path)
     extension = Path.extname(path)
     Path.join(dir, "#{basename}_#{output_frame}#{extension}")
   end
 
-  def output_dir(glob) do
+  def image_output_dir(glob) do
     glob
       |> Path.expand
       |> Path.dirname
