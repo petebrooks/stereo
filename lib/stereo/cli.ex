@@ -22,7 +22,7 @@ defmodule Stereo.CLI do
     IO.puts "Error: #{reason}"
   end
 
-  defp print_result(output_path) do
+  defp print_result({:ok, output_path}) do
     IO.puts """
       Created #{Path.basename(output_path)}
       in #{Parser.pretty_dirname(output_path)}
