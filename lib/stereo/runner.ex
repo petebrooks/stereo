@@ -11,6 +11,7 @@ defmodule Stereo.Runner do
 
   def run(options, input_files) do
     output_dir = Name.image_output_dir(Enum.at(input_files, 0))
+    File.find_or_create_dir!(options, output_dir)
     copy_camera(options, output_dir, input_files) |> handle_result(options)
   end
 
