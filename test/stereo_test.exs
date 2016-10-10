@@ -3,6 +3,7 @@ defmodule StereoTest do
   doctest Stereo
 
   import Stereo
+  alias Stereo.{Runner, Options}
 
   @fixtures Path.join(__DIR__, "fixtures/*.tif")
   @output_dir Path.join(__DIR__, "fixtures/output")
@@ -17,34 +18,39 @@ defmodule StereoTest do
   describe "Stereo.Runner.run/2" do
     test "dry run with an array of paths" do
       paths = Path.expand(@fixtures)
-      assert {:ok, _} = Stereo.Runner.run(:dry_run, paths)
+      assert {:ok, _} = Runner.run(%Options{dry_run: true}, paths)
       refute File.exists?(@output_file)
     end
 
     test "dry run with a glob string" do
-      assert {:ok, _} = Stereo.Runner.run(:dry_run, @fixtures)
+      assert {:ok, _} = Runner.run(%Options{dry_run: true}, @fixtures)
       refute File.exists?(@output_file)
     end
 
     test "dry run with no files" do
-      assert {:error, "No files"} = Stereo.Runner.run(:dry_run, [])
+      assert {:error, "No files"} = Runner.run(%Options{dry_run: true}, [])
       refute File.exists?(@output_file)
     end
 
     test "run with an array of paths" do
       paths = Path.expand(@fixtures)
-      assert {:ok, _} = Stereo.Runner.run(:run, paths)
+      assert {:ok, _} = Runner.run(%Options{}, paths)
       assert File.exists?(@output_file)
     end
 
     test "run with a glob string" do
-      assert {:ok, _} = Stereo.Runner.run(:run, @fixtures)
+      assert {:ok, _} = Runner.run(%Options{}, @fixtures)
       assert File.exists?(@output_file)
     end
 
     test "run with no files" do
-      assert {:error, "No files"} = Stereo.Runner.run(:run, [])
+      assert {:error, "No files"} = Runner.run(%Options{}, [])
       refute File.exists?(@output_file)
+    end
+
+    test "run with custom output name" do
+      assert {:ok, _} = Runner.run(%Options{name: "george"}, @fixtures)
+      assert Path.join(@output_dir, "george_1.mov") |> File.exists?
     end
   end
 end

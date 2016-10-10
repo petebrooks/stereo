@@ -10,12 +10,12 @@ defmodule Stereo.CLI do
 
   defp process(:help) do
     IO.puts """
-    Usage: stereo [-h | --help] [-d | --dry-run] <input>
+    Usage: stereo [-h | --help] [-d | --dry-run] [-n | --name] <input>
     """
   end
 
-  defp process({command, input_glob}) do
-    Runner.run(command, input_glob)
+  defp process({options, input_glob}) do
+    Runner.run(options, input_glob)
       |> print_result
   end
 
@@ -34,12 +34,12 @@ defmodule Stereo.CLI do
     args = OptionParser.parse(argv, switches: [help: :boolean,
                                                dry_run: :boolean],
                                     aliases:  [h: :help,
-                                               d: :dry_run])
+                                               d: :dry_run,
+                                               n: :name])
     case args do
-      { [help: true], _, _ }             -> :help
-      { _, [""], _ }                     -> :help
-      { [dry_run: true], input_glob, _ } -> { :dry_run, input_glob }
-      { _, input_glob, _ }               -> { :run,     input_glob }
+      { [help: true], _, _ }     -> :help
+      { _, [""], _ }             -> :help
+      { options, input_glob, _ } -> { struct(Stereo.Options, options), input_glob }
     end
   end
 end
