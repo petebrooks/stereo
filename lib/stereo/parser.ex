@@ -21,20 +21,18 @@ defmodule Stereo.Parser do
   end
 
   def basename(path) do
-    from_file = Regex.run(~r/(.+)\Wstereo/, Path.basename(path))
-    if from_file do
-      Enum.at(from_file, 1)
-    else
-      path
-        |> Path.split
-        |> Enum.at(-2)
-    end
+    basename_from_file(path) || basename_from_dir(path)
   end
 
-  def pretty_dirname(path) do
+  def basename_from_file(path) do
+    with [_, name] <-
+      Regex.run(~r/(.+)\Wstereo/, Path.basename(path)), do: name
+  end
+
+  def basename_from_dir(path) do
     path
-      |> Path.dirname
-      |> String.replace(Path.expand("~"), "~")
+      |> Path.split
+      |> Enum.at(-2)
   end
 
   def padding_length(path) do

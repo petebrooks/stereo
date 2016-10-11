@@ -1,4 +1,4 @@
-defmodule Stereo.File do
+defmodule Stereo.FileUtils do
   def find_or_create_dir!(%{dry_run: true}, _), do: :ok
   def find_or_create_dir!(%{dry_run: false}, dir) do
     File.exists?(dir) || File.mkdir!(dir)
@@ -10,11 +10,17 @@ defmodule Stereo.File do
   end
 
   def safe_ls(dir) do
-    files = case File.ls(dir) do
+    case File.ls(dir) do
       {:error, _} -> []
-      {:ok, other} -> other
+      {:ok, files} -> files
     end
-    Enum.filter(files, &File.regular?/1)
+      |> Enum.filter(&File.regular?/1)
+  end
+
+  def pretty_dirname(path) do
+    path
+      |> Path.dirname
+      |> String.replace(Path.expand("~"), "~")
   end
 
   def unglob(input_glob) do

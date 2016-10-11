@@ -2,8 +2,6 @@ defmodule NameTest do
   use ExUnit.Case
   doctest Stereo.Name
 
-  import Stereo.Name
-
   describe "Stereo.Name.ffmpeg_pattern/1" do
     test "with four-digit padding" do
       path = "~/Documents/testing/image_0004.tif"

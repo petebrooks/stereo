@@ -1,5 +1,5 @@
 defmodule Stereo.CLI do
-  alias Stereo.{Parser, Runner}
+  alias Stereo.{FileUtils, Runner}
 
   def main(argv) do
     argv
@@ -14,8 +14,7 @@ defmodule Stereo.CLI do
   end
 
   defp process({options, input_glob}) do
-    Runner.run(options, input_glob)
-      |> print_result
+    Runner.run(options, input_glob) |> print_result
   end
 
   defp print_result({:error, reason}) do
@@ -25,7 +24,7 @@ defmodule Stereo.CLI do
   defp print_result({:ok, output_path}) do
     IO.puts """
       Created #{Path.basename(output_path)}
-      in #{Parser.pretty_dirname(output_path)}
+      in #{FileUtils.pretty_dirname(output_path)}
     """
   end
 
